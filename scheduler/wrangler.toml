@@ -1,0 +1,34 @@
+# Cloudflare Worker que dispara o brief-diario no horário (workflow_dispatch).
+# Deploy e setup do token: ver scheduler/README.md e SETUP.md (agendador).
+name = "brief-diario-scheduler"
+main = "src/worker.js"
+# Fixa o comportamento do runtime workerd numa data estável (ajuste se quiser).
+# O Worker NÃO roda Node.js (é o runtime V8/workerd) — o código usa só `fetch`
+# (padrão Web nativo), então não precisa da flag nodejs_compat.
+compatibility_date = "2026-06-16"
+
+# Worker só de cron (sem handler `fetch`) — não precisa de URL pública.
+# Desliga a rota workers.dev e os Preview URLs (evita superfície exposta à toa).
+workers_dev = false
+preview_urls = false
+
+# O cron trigger do Cloudflare roda em UTC. CONVERTA o seu horário local para UTC:
+#   ex.: 06:30 em America/Sao_Paulo (UTC-3) = 09:30 UTC → "30 9 * * *"
+# Roda TODO DIA de propósito; o filtro de dia útil (seg–sex) é feito em JS no
+# worker.js (getUTCDay), que não tem a ambiguidade do campo de dia-da-semana.
+[triggers]
+crons = ["30 9 * * *"]
+
+# Observability LIGADA: com logs retidos, `wrangler tail` e o painel (aba Cron
+# events) mostram cada invocação do scheduled handler. Só passa a valer após um
+# `wrangler deploy` (não basta `secret put`).
+[observability]
+enabled = true
+
+# Constantes não-sensíveis — AJUSTE para o SEU repositório.
+# O token vai como SECRET, não aqui:  wrangler secret put GH_DISPATCH_TOKEN
+[vars]
+GH_OWNER = "SEU-USUARIO"
+GH_REPO = "SEU-REPO"
+GH_WORKFLOW = "brief.yml"
+GH_REF = "main"

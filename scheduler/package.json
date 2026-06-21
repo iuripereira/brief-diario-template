@@ -1,0 +1,17 @@
+{
+  "name": "brief-diario-scheduler",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Cloudflare Worker que dispara o workflow do brief-diario no horário via workflow_dispatch.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev --test-scheduled",
+    "tail": "wrangler tail"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "wrangler": "^4.100.0"
+  }
+}
