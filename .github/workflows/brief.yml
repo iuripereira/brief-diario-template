@@ -1,0 +1,174 @@
+name: brief-diario
+
+# Orquestração serverless do brief diário (lock, retry, validação, alerta).
+# Agendamento: Cloudflare Worker externo (scheduler/). Setup: ver SETUP.md.
+
+on:
+  # Disparo PRIMÁRIO: agendador externo (Cloudflare Worker em scheduler/) via API,
+  # porque o evento `schedule` nativo do Actions atrasa horas em repos de baixa
+  # atividade. O horário (no seu timezone) vive no Worker.
+  # Também serve para execução manual sob demanda pelo botão "Run workflow".
+  workflow_dispatch: {}
+
+  # Rede de SEGURANÇA (fallback): se o Worker não disparar, este `schedule` ainda
+  # gera o brief — mesmo atrasado (o cron do Actions é best-effort). Para NÃO duplicar
+  # quando o Worker dispara normalmente, o job `guard` abaixo pula este caminho se já
+  # houve run bem-sucedido hoje. Ajuste o cron à folga sobre o horário do seu Worker.
+  schedule:
+    - cron: '0 12 * * 1-5'
+
+concurrency:                   # equivale ao flock: nunca dois runs simultâneos
+  group: brief-diario
+  cancel-in-progress: false
+
+# Least-privilege do GITHUB_TOKEN: o workflow só LÊ. `actions: read` é o que o job
+# `guard` precisa para consultar `gh run list`; `contents: read` cobre o checkout.
+# Nenhum passo escreve no repo (a entrega é por SMTP/chat, não por commit).
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  # Guarda anti-duplicado do fallback: só deixa seguir o `schedule` se ainda não
+  # houve um run bem-sucedido do brief hoje. workflow_dispatch (Worker/manual) passa
+  # sempre direto. Converte o par "Worker + schedule" de risco de duplicata em
+  # defesa em profundidade (dois disparos independentes, no máximo um brief/dia).
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" != "schedule" ]]; then
+            echo "Disparo ${{ github.event_name }} — segue sempre."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          TODAY=$(date -u +%F)   # createdAt da API vem em UTC
+          # Já existe run concluído com sucesso hoje (qualquer trigger, exceto este)?
+          DONE=$(gh run list --workflow=brief.yml --limit 30 \
+                   --json databaseId,createdAt,conclusion \
+                   -q "[.[] | select(.databaseId != ${{ github.run_id }})
+                            | select(.conclusion==\"success\")
+                            | select(.createdAt | startswith(\"$TODAY\"))] | length")
+          if [[ "${DONE:-0}" -gt 0 ]]; then
+            echo "Brief de $TODAY já rodou com sucesso ($DONE run/s) — fallback pula (sem duplicar)."
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "⚠️ Nenhum brief bem-sucedido hoje — o Worker não disparou. Fallback assume."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  brief:
+    needs: guard
+    if: needs.guard.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # --- constantes (não-segredo) — AJUSTE ao seu caso ---
+      BRIEF_TZ: UTC                              # use o mesmo timezone do seu config.yaml (perfil.timezone)
+      MAIL_METHOD: smtp
+      SMTP_URL: smtps://smtp.gmail.com:465        # ajuste ao seu provedor SMTP (ver CONNECTORS.md)
+      CLAUDE_MODEL: sonnet
+      CLAUDE_FALLBACK_MODEL: claude-haiku-4-5
+      CLAUDE_MAX_TURNS: '50'
+      CLAUDE_EXTRA_ARGS: --strict-mcp-config
+      # --- segredos ---
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+      EMAIL_TO:   ${{ secrets.EMAIL_TO }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+      SMTP_USER:  ${{ secrets.SMTP_USER }}
+      SMTP_PASS:  ${{ secrets.SMTP_PASS }}
+      TODOIST_API_TOKEN: ${{ secrets.TODOIST_API_TOKEN }}
+      # entrega em chat — preencha o que usar (ver entrega.chat.tipo no config.yaml)
+      SLACK_WEBHOOK_URL:  ${{ secrets.SLACK_WEBHOOK_URL }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+
+    steps:
+      # Actions pinadas por SHA (supply chain): o SHA é imutável, a tag flutua.
+      # Comentário registra a versão legível; ao atualizar, troque SHA + comentário.
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependências (Claude Code CLI + PyYAML)
+        run: |
+          npm i -g @anthropic-ai/claude-code
+          python3 -m pip install --quiet pyyaml
+
+      - name: Restaurar config + credenciais dos MCPs (a partir de secrets)
+        env:
+          CONFIG_YAML:       ${{ secrets.CONFIG_YAML }}
+          GMAIL_MCP_DIR_B64: ${{ secrets.GMAIL_MCP_DIR_B64 }}
+          GCAL_MCP_DIR_B64:  ${{ secrets.GCAL_MCP_DIR_B64 }}
+        run: |
+          set -euo pipefail
+          # config.yaml do runner: vem do secret CONFIG_YAML (não versionado)
+          printf '%s' "$CONFIG_YAML" > config.yaml
+          # diretórios de token capturados numa autorização local única (ver SETUP.md)
+          [[ -n "${GMAIL_MCP_DIR_B64:-}" ]] && printf '%s' "$GMAIL_MCP_DIR_B64" | base64 -d | tar xzf - -C "$HOME" || true
+          [[ -n "${GCAL_MCP_DIR_B64:-}" ]]  && printf '%s' "$GCAL_MCP_DIR_B64"  | base64 -d | tar xzf - -C "$HOME" || true
+          # mcp-servers.json do runner: injeta o token Todoist e o $HOME no caminho do gcal
+          sed -e "s#COLOQUE_SEU_TOKEN_TODOIST#${TODOIST_API_TOKEN}#g" \
+              -e "s#/home/SEU-USUARIO#${HOME}#g" \
+              mcp-servers.example.json > mcp-servers.json
+
+      - name: Gerar (1 retry) + validar
+        run: |
+          set -euo pipefail
+          export TZ="$BRIEF_TZ"
+          TODAY=$(date +%F)
+          echo "TODAY=$TODAY" >> "$GITHUB_ENV"
+          MD="briefs/$TODAY.md"; HTML="briefs/$TODAY.html"; CHAT="briefs/$TODAY.chat.md"
+          # espelha o contrato de artefatos / WORKFLOW.md §9 — manter coerente se a §9 mudar
+          validate() {
+            [[ -s "$MD" && $(stat -c%s "$MD") -gt 500 ]] || { echo "validação: $MD ausente ou pequeno demais"; return 1; }
+            [[ -s "$HTML" ]] || { echo "validação: $HTML ausente"; return 1; }
+            [[ -s "$CHAT" ]] || { echo "validação: $CHAT ausente"; return 1; }
+            grep -qi '</html>' "$HTML" || { echo "validação: HTML sem </html>"; return 1; }
+            grep -q "$TODAY" "$HTML" || { echo "validação: HTML sem a data $TODAY"; return 1; }
+            grep -q "$TODAY" "$MD" || { echo "validação: MD sem a data $TODAY"; return 1; }
+            grep -q "$TODAY" "$CHAT" || { echo "validação: chat sem a data $TODAY"; return 1; }
+          }
+          ok=0
+          for attempt in 1 2; do
+            echo "--- geração: tentativa $attempt"
+            rm -f "$MD" "$HTML" "$CHAT"   # nunca validar artefato velho/parcial
+            if scripts/generate.sh "$TODAY" && validate; then ok=1; break; fi
+            echo "tentativa $attempt falhou"
+          done
+          [[ $ok -eq 1 ]]
+
+      - name: Entregar (e-mail + chat)
+        run: |
+          set -euo pipefail
+          fail=""
+          scripts/send-email.sh "$TODAY" || fail+=" email"
+          scripts/send-chat.sh "$TODAY" || fail+=" chat"
+          [[ -z "$fail" ]] || { echo "entrega parcial:$fail"; exit 1; }
+
+      - name: Alerta no chat em caso de falha
+        if: failure()
+        run: |
+          scripts/send-chat.sh --alert "🚨 Brief de ${TODAY:-hoje} FALHOU no GitHub Actions. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" || true
+
+      - name: Guardar artefatos (debug/retenção)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: brief-${{ env.TODAY }}
+          path: |
+            briefs/*.md
+            briefs/*.html
+            logs/claude-*.json
+          # 7 dias: janela curta de debug sem reter dados pessoais do brief por 1 mês.
+          # (logs/claude-*.json é só metadados do run — termina em BRIEF_OK, sem PII.)
+          retention-days: 7
+          if-no-files-found: ignore
