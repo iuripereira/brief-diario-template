@@ -1,0 +1,22 @@
+{
+  "_comentario": "Copie para mcp-servers.json (gitignored) e deixe só os servidores que você usa. Caminhos absolutos: troque /home/SEU-USUARIO. Ver CONNECTORS.md para alternativos (CalDAV, outros task managers).",
+  "mcpServers": {
+    "todoist": {
+      "command": "npx",
+      "args": ["-y", "@doist/todoist-mcp"],
+      "env": { "TODOIST_API_KEY": "COLOQUE_SEU_TOKEN_TODOIST" }
+    },
+    "gmail": {
+      "command": "npx",
+      "args": ["-y", "@gongrzhe/server-gmail-autoauth-mcp"]
+    },
+    "gcal": {
+      "command": "npx",
+      "args": ["-y", "@cocal/google-calendar-mcp"],
+      "env": {
+        "GOOGLE_OAUTH_CREDENTIALS": "/home/SEU-USUARIO/.config/gcal-mcp/gcp-oauth.keys.json",
+        "GOOGLE_CALENDAR_MCP_TOKEN_PATH": "/home/SEU-USUARIO/.config/gcal-mcp/tokens.json"
+      }
+    }
+  }
+}
