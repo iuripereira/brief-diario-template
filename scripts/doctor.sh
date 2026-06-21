@@ -19,8 +19,13 @@ if [[ "$(get secoes.noticias)" == "true" ]]; then
     && ok "noticias.categorias" || bad "secoes.noticias=true mas sem categorias"
 fi
 
-echo "== segredos (.env) p/ entrega escolhida =="
-[[ -f .env ]] && ok ".env presente" || bad ".env ausente (copie de .env.example)"
+echo "== segredos p/ entrega escolhida =="
+# Segredos podem vir do .env (local) OU já do ambiente (CI/GitHub Actions).
+if [[ -f .env ]]; then
+  ok ".env presente"
+else
+  echo "  ℹ .env ausente — ok se os segredos vierem do ambiente (CI)"
+fi
 if [[ "$(get entrega.email.enabled)" == "true" ]]; then
   method="${MAIL_METHOD:-smtp}"
   [[ -n "${EMAIL_TO:-}" && -n "${EMAIL_FROM:-}" ]] \

@@ -11,8 +11,8 @@ perfil:
     Alimenta o tom e a relevância do brief.
 
 lente_de_relevancia:              # o que conta como "relevante" pra você
-  - "recolocação / carreira"
-  - "seu setor / especialidade"
+  - "carreira e mercado de trabalho"
+  - "sua área de especialidade"
   - "finanças pessoais"
 
 noticias:

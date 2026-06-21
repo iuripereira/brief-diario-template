@@ -35,3 +35,13 @@ e o projeto adere ao [Semantic Versioning 2.0.0](https://semver.org/lang/pt-BR/)
 ### Contrato de artefatos
 - Três artefatos: `briefs/DATA.md` e `.html` (completos) + `briefs/DATA.chat.md` (enxuto,
   canal-agnóstico — só Agenda, Tarefas e Síntese).
+
+### Validado
+- **Teste de ponta a ponta no GitHub Actions real:** geração com fontes reais
+  (Gmail/Calendar/Todoist via MCP + WebSearch) e entrega por e-mail (SMTP) e Slack.
+
+### Corrigido
+- **Actions atualizadas para Node 24** (`actions/checkout@v5`, `setup-node@v5`,
+  `upload-artifact@v5`) — elimina o aviso de depreciação do Node 20.
+- **`doctor.sh` aceita segredos via ambiente** (CI/GitHub Actions), não só via arquivo
+  `.env`; respeita `MAIL_METHOD` (`stdout`/`sendmail` dispensam `SMTP_*`).
