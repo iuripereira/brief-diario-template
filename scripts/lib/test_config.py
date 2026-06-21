@@ -7,8 +7,8 @@ CONFIG = HERE / "config.py"
 SAMPLE = textwrap.dedent("""
     perfil:
       nome: "Maria"
-      cidade: "Recife"
-      timezone: "America/Recife"
+      cidade: "Curitiba"
+      timezone: "America/Sao_Paulo"
       idioma_saida: "pt-BR"
       bio: |
         Engenheira de dados.
@@ -50,7 +50,7 @@ def run(args, cfg):
 def test_get_scalar(tmp_path):
     r = run(["get", "perfil.timezone"], tmp_path)
     assert r.returncode == 0
-    assert r.stdout.strip() == "America/Recife"
+    assert r.stdout.strip() == "America/Sao_Paulo"
 
 
 def test_get_bool(tmp_path):
@@ -78,8 +78,8 @@ def test_render_profile_has_name_and_lens(tmp_path):
     r = run(["render-profile"], tmp_path)
     assert r.returncode == 0
     out = r.stdout
-    assert "Maria" in out and "Recife" in out
-    assert "America/Recife" in out
+    assert "Maria" in out and "Curitiba" in out
+    assert "America/Sao_Paulo" in out
     assert "carreira" in out and "IA" in out
     assert "Engenheira de dados" in out
 
