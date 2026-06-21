@@ -13,6 +13,25 @@ fontes de notícia, quais seções ligar e quais conectores usar. Sem editar có
 > **Regra de ouro — geração ≠ entrega:** o Claude **só gera arquivos**; nunca envia
 > e-mail nem posta no chat. Toda entrega é dos scripts, reforçada por permissões e hooks.
 
+## Como funciona (visão geral)
+
+![Arquitetura do brief-diario](docs/arquitetura.svg)
+
+Da esquerda para a direita, de cima para baixo:
+
+1. **Você edita o `config.yaml`** — quem você é, o que é relevante, quais seções e
+   conectores quer. É o único arquivo que você precisa mexer.
+2. **O Cloudflare Worker dispara** o pipeline no horário, nos dias úteis.
+3. **O GitHub Actions orquestra** (lock, retry, validação, alerta) e roda os scripts.
+4. **O `generate.sh` chama o Claude headless**, que lê o seu perfil + o `WORKFLOW.md`,
+   consulta suas **fontes** (calendário, e-mail, tarefas via MCP; notícias na web) e
+   **grava 3 artefatos**: `.md` e `.html` completos + `.chat.md` enxuto.
+5. **Os scripts entregam**: `send-email.sh` manda o e-mail; `send-chat.sh` posta no
+   Slack/Discord/Telegram. O Claude nunca entrega — essa é a regra de ouro.
+
+> Diagrama editável (Excalidraw): [docs/arquitetura.excalidraw](docs/arquitetura.excalidraw)
+> — abra em [excalidraw.com](https://excalidraw.com).
+
 ## Pré-requisitos
 
 - **Claude Code** com `claude -p` headless e um `CLAUDE_CODE_OAUTH_TOKEN`
@@ -75,6 +94,10 @@ fontes de notícia, quais seções ligar e quais conectores usar. Sem editar có
 9. **Coloque em produção** (GitHub Actions + agendador): cadastre os GitHub Secrets,
    ative o workflow e faça o deploy do Cloudflare Worker — runbook completo em
    [SETUP.md](SETUP.md).
+
+   > ⚠️ **O workflow vem desabilitado por padrão.** Assim ele não fica falhando antes
+   > de você cadastrar os secrets. Depois de configurar tudo, habilite-o em
+   > **Actions → brief-diario → Enable workflow** (ou `gh workflow enable brief-diario`).
 
 ## Artefatos gerados
 
