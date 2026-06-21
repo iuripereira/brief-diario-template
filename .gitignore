@@ -1,0 +1,18 @@
+# Segredos e config local — NUNCA versionar
+.env
+config.yaml
+mcp-servers.json
+*credentials*.json
+gcp-oauth.keys.json
+tokens.json
+.dev.vars
+
+# Artefatos gerados
+briefs/*.md
+briefs/*.html
+!briefs/.gitkeep
+logs/
+
+# Node
+node_modules/
+.wrangler/

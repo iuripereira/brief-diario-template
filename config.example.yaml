@@ -1,0 +1,46 @@
+# config.yaml — preferências do seu brief diário.
+# Copie para config.yaml (gitignored) e edite. SEGREDOS NÃO entram aqui (vão no .env).
+
+perfil:
+  nome: "Seu Nome"
+  cidade: "Sua cidade"
+  timezone: "America/Sao_Paulo"   # IANA tz; usado na geração e como base do cron
+  idioma_saida: "pt-BR"           # idioma do brief gerado
+  bio: |
+    1–3 linhas sobre você: profissão, foco atual, o que importa.
+    Alimenta o tom e a relevância do brief.
+
+lente_de_relevancia:              # o que conta como "relevante" pra você
+  - "recolocação / carreira"
+  - "seu setor / especialidade"
+  - "finanças pessoais"
+
+noticias:
+  num_itens: 5
+  categorias:                     # cada categoria vira uma busca web
+    - nome: "Tecnologia/IA"
+      fontes: ["TechCrunch", "Tecnoblog"]    # opcional, guia a busca
+    - nome: "Mercado financeiro"
+      fontes: ["InfoMoney", "Valor Econômico"]
+    - nome: "Local"
+      fontes: ["jornal da sua cidade"]
+
+secoes:                           # liga/desliga seções do brief
+  agenda: true
+  emails: true
+  tarefas: true
+  noticias: true
+  sintese: true
+  conteudo_social: false          # sugestões de post (LinkedIn etc.) — off por padrão
+
+conectores:                       # INTENÇÃO; o wiring real fica no mcp-servers.json
+  calendario:   { mcp: "google-calendar" }   # "" = desliga a seção Agenda
+  email_leitura: { mcp: "gmail" }             # "" = desliga a seção E-mails
+  tarefas:      { mcp: "todoist" }            # "" = desliga a seção Tarefas
+
+entrega:
+  email:
+    enabled: true                 # credenciais no .env (SMTP_*)
+  chat:
+    tipo: "slack"                 # slack | discord | telegram | none
+                                  # webhook/token no .env
