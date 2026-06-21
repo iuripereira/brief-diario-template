@@ -34,7 +34,7 @@
 <text x="713" y="564.5" text-anchor="middle" font-size="13" font-weight="400" fill="#5a236a">Slack · Discord · Telegram</text>
 <text x="713" y="583.5" text-anchor="middle" font-size="13" font-weight="400" fill="#5a236a">→ 💬 chat (enxuto)</text>
 <rect x="150" y="642" width="560" height="48" rx="15" fill="#fff8e6" stroke="#d4a72c" stroke-width="2"/>
-<text x="430" y="670.5" text-anchor="middle" font-size="15" font-weight="700" fill="#7a5c00">Regra de ouro: o Claude GERA, os scripts ENTREGAM</text>
+<text x="430" y="670.5" text-anchor="middle" font-size="15" font-weight="700" fill="#7a5c00">Regra geral: o Claude GERA, os scripts ENTREGAM</text>
 <path d="M430,100 L430,140" fill="none" stroke="#57606a" stroke-width="2" marker-end="url(#arrow)"/>
 <path d="M430,206 L430,242" fill="none" stroke="#57606a" stroke-width="2" marker-end="url(#arrow)"/>
 <path d="M430,316 L432,372" fill="none" stroke="#57606a" stroke-width="2" marker-end="url(#arrow)"/>
