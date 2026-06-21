@@ -16,3 +16,7 @@ logs/
 # Node
 node_modules/
 .wrangler/
+
+# Python bytecode
+__pycache__/
+*.pyc
