@@ -22,8 +22,18 @@ fi
 echo "== segredos (.env) p/ entrega escolhida =="
 [[ -f .env ]] && ok ".env presente" || bad ".env ausente (copie de .env.example)"
 if [[ "$(get entrega.email.enabled)" == "true" ]]; then
-  [[ -n "${SMTP_USER:-}" && -n "${SMTP_PASS:-}" && -n "${EMAIL_TO:-}" ]] \
-    && ok "SMTP_USER/SMTP_PASS/EMAIL_TO" || bad "e-mail ligado mas SMTP_*/EMAIL_TO incompletos"
+  method="${MAIL_METHOD:-smtp}"
+  [[ -n "${EMAIL_TO:-}" && -n "${EMAIL_FROM:-}" ]] \
+    && ok "EMAIL_TO/EMAIL_FROM" || bad "e-mail ligado mas EMAIL_TO/EMAIL_FROM ausentes"
+  case "$method" in
+    smtp)
+      [[ -n "${SMTP_URL:-}" && -n "${SMTP_USER:-}" && -n "${SMTP_PASS:-}" ]] \
+        && ok "SMTP_URL/SMTP_USER/SMTP_PASS" || bad "MAIL_METHOD=smtp mas SMTP_URL/SMTP_USER/SMTP_PASS incompletos" ;;
+    sendmail|stdout)
+      ok "MAIL_METHOD=$method (não exige SMTP_*)" ;;
+    *)
+      bad "MAIL_METHOD desconhecido: $method" ;;
+  esac
 fi
 case "$(get entrega.chat.tipo)" in
   slack)    [[ -n "${SLACK_WEBHOOK_URL:-}" ]] && ok "SLACK_WEBHOOK_URL" || bad "chat=slack sem SLACK_WEBHOOK_URL" ;;
