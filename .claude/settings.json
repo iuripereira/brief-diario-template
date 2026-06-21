@@ -1,0 +1,63 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch",
+      "Write(briefs/**)",
+      "Bash(date:*)",
+      "Bash(ls:*)",
+      "mcp__claude_ai_Google_Calendar__list_calendars",
+      "mcp__claude_ai_Google_Calendar__list_events",
+      "mcp__claude_ai_Google_Calendar__get_event",
+      "mcp__claude_ai_Gmail__search_threads",
+      "mcp__claude_ai_Gmail__get_thread",
+      "mcp__claude_ai_Todoist__find-tasks",
+      "mcp__claude_ai_Todoist__find-tasks-by-date",
+      "mcp__claude_ai_Todoist__find-projects",
+      "mcp__claude_ai_Todoist__get-overview",
+      "mcp__todoist",
+      "mcp__gmail",
+      "mcp__gcal"
+    ],
+    "deny": [
+      "mcp__claude_ai_Gmail__create_draft",
+      "mcp__claude_ai_Gmail__create_label",
+      "mcp__claude_ai_Gmail__delete_label",
+      "mcp__claude_ai_Gmail__label_message",
+      "mcp__claude_ai_Gmail__label_thread",
+      "mcp__claude_ai_Google_Calendar__create_event",
+      "mcp__claude_ai_Google_Calendar__update_event",
+      "mcp__claude_ai_Google_Calendar__delete_event",
+      "mcp__claude_ai_Google_Calendar__respond_to_event",
+      "mcp__claude_ai_Todoist__add-tasks",
+      "mcp__claude_ai_Todoist__update-tasks",
+      "mcp__claude_ai_Todoist__complete-tasks",
+      "mcp__claude_ai_Todoist__uncomplete-tasks",
+      "mcp__claude_ai_Todoist__reschedule-tasks",
+      "mcp__claude_ai_Todoist__delete-object"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard_pretooluse.py\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard_stop.py\""
+          }
+        ]
+      }
+    ]
+  }
+}
