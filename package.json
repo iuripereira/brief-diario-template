@@ -1,0 +1,17 @@
+{
+  "name": "brief-diario-template",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Template de brief diário — wizard de setup.",
+  "bin": { "create-brief-diario": "scripts/setup/index.js" },
+  "scripts": {
+    "setup": "node scripts/setup/index.js",
+    "test": "node --test scripts/setup/"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@clack/prompts": "^0.7.0",
+    "yaml": "^2.5.0"
+  }
+}
