@@ -4,6 +4,8 @@ O template tem três tipos de conector: **e-mail de entrega** (SMTP), **fontes v
 (calendário/e-mail/tarefas) e **canal de chat** (Slack/Discord/Telegram). Esta página
 cobre os suportados e como adicionar novos.
 
+> **Dica:** o wizard (`npm run setup`) já cria no `.env` as chaves certas (vazias) para os conectores e o canal de entrega que você escolher — você só preenche os valores.
+
 ## E-mail de entrega (SMTP)
 
 `scripts/send-email.sh` é SMTP-agnóstico. Defina no `.env`:
@@ -27,7 +29,7 @@ conectores` apenas liga/desliga a seção e dá o nome legível. Para usar uma f
 1. Adicione/edite o servidor no `mcp-servers.json`.
 2. Ligue o conector correspondente no `config.yaml` (`conectores.<x>.mcp: "<nome>"`).
 3. Autorize o servidor (a maioria tem um subcomando `auth` — ver [SETUP.md](SETUP.md)).
-4. Rode `scripts/doctor.sh` e depois um `generate.sh` de teste.
+4. Rode `npm run doctor` (cross-platform) e depois um `generate.sh` de teste (Linux/macOS/WSL).
 
 **Suportados de fábrica** (já validados no projeto original):
 
