@@ -4,7 +4,7 @@ O `config.yaml` guarda **preferências** (nunca segredos — esses vão no `.env
 GitHub Secrets). É lido por `scripts/lib/config.py`, que renderiza o bloco de perfil
 injetado no prompt pelo `generate.sh`. O Claude **não lê** o `config.yaml` diretamente.
 
-Copie de `config.example.yaml` e edite. Valide com `scripts/doctor.sh`.
+A forma mais fácil de criar este arquivo é o wizard: `npm run setup` (Windows/macOS/Linux). Ou copie de `config.example.yaml` e edite à mão. Em qualquer caso, valide com `npm run doctor`.
 
 ## `perfil`
 

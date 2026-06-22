@@ -22,7 +22,7 @@ Tudo é configurável num único **`config.yaml`**: seu perfil, a lente de relev
 
 Da esquerda para a direita, de cima para baixo:
 
-1. **Você edita o `config.yaml`** — quem você é, o que é relevante, quais seções e conectores quer. É o único arquivo que você precisa mexer.
+1. **Você configura com `npm run setup`** — o wizard (Windows/macOS/Linux) gera o `config.yaml` (quem você é, o que é relevante, quais seções e conectores quer) e o `.env`. Valide a qualquer momento com `npm run doctor`. Também dá para editar o `config.yaml` à mão.
 2. **O Cloudflare Worker dispara** o pipeline no horário, nos dias úteis.
 3. **O GitHub Actions orquestra** (lock, retry, validação, alerta) e roda os scripts.
 4. **O `generate.sh` chama o Claude headless**, que lê o seu perfil + o `WORKFLOW.md`, consulta suas **fontes** (calendário, e-mail, tarefas via MCP; notícias na web) e **grava 3 artefatos**: `.md` e `.html` completos + `.chat.md` enxuto.
@@ -32,61 +32,62 @@ Da esquerda para a direita, de cima para baixo:
 
 ## Pré-requisitos
 
-- **Claude Code** com `claude -p` headless e um `CLAUDE_CODE_OAUTH_TOKEN` (de `claude setup-token`).
-- **bash, jq, curl, python3 + PyYAML** (`pip install pyyaml`).
-- **Node ≥ 20** (servidores MCP via npm + wrangler).
-- **Conta GitHub** (Actions) e **conta Cloudflare** (agendador).
-- Credenciais dos conectores que você escolher: SMTP (e-mail), MCP de tarefas/calendário/e-mail, webhook do canal de chat.
+Dependem do que você vai fazer:
+
+**1. Configurar e validar — qualquer SO (Windows, macOS, Linux)**
+- **Node ≥ 20** — é só o que o wizard (`npm run setup`) e o validador (`npm run doctor`) precisam.
+
+**2. Gerar e enviar o brief localmente** (opcional; é o mesmo que o GitHub Actions roda)
+- `bash`, `jq`, `curl`, `python3 + PyYAML` (`pip install pyyaml`) e o **Claude Code** CLI (`claude -p` com `CLAUDE_CODE_OAUTH_TOKEN` de `claude setup-token`).
+- Nativo no Linux/macOS. **No Windows, rode via WSL ou Git Bash** (os scripts de geração/envio são bash).
+
+**3. Produção (serverless)**
+- Conta **GitHub** (Actions) e conta **Cloudflare** (agendador) — ambiente Linux gerenciado, nada a instalar.
+- Credenciais dos conectores que escolher: SMTP (e-mail), MCP de tarefas/calendário/e-mail, webhook do chat.
 
 ## Passo a passo
 
-1. **Copie o template.** Copie a pasta `template/` para o seu próprio repositório (ou use este repo como template no GitHub).
+1. **Use este repositório como template** no GitHub (botão *Use this template*) ou clone-o.
 
-2. **Instale as dependências.**
+2. **Rode o wizard de configuração** — Windows, macOS ou Linux:
    ```bash
-   pip install pyyaml
-   # garanta também: jq, curl, node>=20, claude (CLI)
+   npm install
+   npm run setup
    ```
+   Ele faz algumas perguntas e gera o `config.yaml` e o `.env` (já com as chaves certas, vazias). Ao final, valida com o doctor.
 
-3. **Configure suas preferências.**
+3. **Preencha os segredos no `.env`** (token do Claude, SMTP, webhook do chat) e valide quando quiser — também cross-platform:
+   ```bash
+   npm run doctor        # rode até dar tudo ✓
+   ```
+   Referência de cada campo: [CONFIG.md](CONFIG.md). Segredos por conector: [CONNECTORS.md](CONNECTORS.md).
+
+   <details>
+   <summary>Prefere configurar à mão, sem o wizard?</summary>
+
    ```bash
    cp config.example.yaml config.yaml      # gitignored
-   $EDITOR config.yaml                      # nome, cidade, timezone, lente, notícias, seções, conectores
+   cp .env.example .env                     # no Linux/macOS: chmod 600 .env
+   # edite os dois e depois rode: npm run doctor
    ```
-   Referência campo a campo: [CONFIG.md](CONFIG.md).
+   </details>
 
-4. **Configure os segredos (debug local).**
-   ```bash
-   cp .env.example .env && chmod 600 .env
-   $EDITOR .env                             # token do Claude, SMTP, webhook do chat, etc.
-   ```
-
-5. **Configure os conectores MCP** (tarefas/calendário/e-mail), se usar.
+4. **(Opcional) Conectores MCP** (tarefas/calendário/e-mail), se usar:
    ```bash
    cp mcp-servers.example.json mcp-servers.json
-   $EDITOR mcp-servers.json                 # deixe só os que usa; ajuste caminhos/token
-   ```
-   Autorize cada MCP uma vez localmente — ver [SETUP.md](SETUP.md).
-
-6. **Valide a configuração** (não chama o Claude nem envia nada):
-   ```bash
-   scripts/doctor.sh        # rode até dar tudo ✓
+   # deixe só os que usa; autorize cada um uma vez localmente — ver SETUP.md
    ```
 
-7. **Gere um brief localmente:**
+5. **(Linux/macOS/WSL) Gere e teste localmente:**
    ```bash
-   scripts/generate.sh $(date +%F)
-   ls briefs/               # AAAA-MM-DD.md, .html, .chat.md
-   ```
-
-8. **Teste a entrega:**
-   ```bash
+   scripts/generate.sh $(date +%F)      # gera briefs/AAAA-MM-DD.{md,html,chat.md}
    MAIL_METHOD=stdout scripts/send-email.sh $(date +%F) | head -40   # inspeciona o MIME
    scripts/send-email.sh $(date +%F)                                 # envia de verdade
    scripts/send-chat.sh  $(date +%F)                                 # posta no chat
    ```
+   > No **Windows**, rode esta etapa dentro do **WSL** ou **Git Bash** (os scripts são bash). Configurar/validar (passos 2–3) não precisa disso.
 
-9. **Coloque em produção** (GitHub Actions + agendador): cadastre os GitHub Secrets, ative o workflow e faça o deploy do Cloudflare Worker — runbook completo em [SETUP.md](SETUP.md).
+6. **Coloque em produção** (GitHub Actions + agendador): cadastre os GitHub Secrets, ative o workflow e faça o deploy do Cloudflare Worker — runbook completo em [SETUP.md](SETUP.md).
 
    > ⚠️ **O workflow vem desabilitado por padrão.** Assim ele não fica falhando antes de você cadastrar os secrets. Depois de configurar tudo, habilite-o em **Actions → brief-diario → Enable workflow** (ou `gh workflow enable brief-diario`).
 
@@ -111,4 +112,4 @@ Da esquerda para a direita, de cima para baixo:
 - **[WORKFLOW.md](WORKFLOW.md)** — a spec do conteúdo do brief.
 - **[scheduler/](scheduler/)** — o Cloudflare Worker que dispara o brief.
 
-Não há build, lint nem testes automatizados além dos testes dos scripts (`scripts/lib/test_config.py`, `scripts/test_send_chat.sh`).
+Testes: `npm test` (wizard + validador, cross-platform) e os testes dos scripts bash (`scripts/lib/test_config.py`, `scripts/test_send_chat.sh`). Sem build nem lint.
