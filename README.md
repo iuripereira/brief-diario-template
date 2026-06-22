@@ -55,6 +55,12 @@ Da esquerda para a direita, de cima para baixo:
    ```
    Referência campo a campo: [CONFIG.md](CONFIG.md).
 
+   > **Atalho:** em vez de copiar e editar à mão, rode o wizard:
+   > ```bash
+   > npm install && npm run setup
+   > ```
+   > Ele gera `config.yaml` e `.env` (chaves vazias, p/ você preencher) e valida com o doctor.
+
 4. **Configure os segredos (debug local).**
    ```bash
    cp .env.example .env && chmod 600 .env
