@@ -2,8 +2,8 @@
 <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#57606a"/></marker></defs>
 <rect x="0" y="0" width="860" height="716" fill="#ffffff"/>
 <rect x="250" y="30" width="360" height="70" rx="15" fill="#fff8e6" stroke="#d4a72c" stroke-width="2"/>
-<text x="430" y="60.0" text-anchor="middle" font-size="15" font-weight="700" fill="#7a5c00">👤 Você edita o config.yaml</text>
-<text x="430" y="79.0" text-anchor="middle" font-size="13" font-weight="400" fill="#7a5c00">perfil · lente · fontes · seções · conectores</text>
+<text x="430" y="60.0" text-anchor="middle" font-size="15" font-weight="700" fill="#7a5c00">👤 Configure: npm run setup</text>
+<text x="430" y="79.0" text-anchor="middle" font-size="13" font-weight="400" fill="#7a5c00">gera config.yaml + .env · valida: npm run doctor</text>
 <rect x="250" y="140" width="360" height="66" rx="15" fill="#fff3e8" stroke="#f38020" stroke-width="2"/>
 <text x="430" y="168.0" text-anchor="middle" font-size="15" font-weight="700" fill="#9a4a00">⏰ Cloudflare Worker — agendador</text>
 <text x="430" y="187.0" text-anchor="middle" font-size="13" font-weight="400" fill="#9a4a00">dispara nos dias úteis, no seu horário</text>
