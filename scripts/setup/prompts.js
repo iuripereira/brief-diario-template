@@ -14,9 +14,9 @@ function bail(value) {
 export async function collectAnswers() {
   intro("brief-diario — wizard de configuração");
 
-  const nome = bail(await text({ message: "Seu nome", placeholder: "Maria Silva" }));
+  const nome = bail(await text({ message: "Seu nome", placeholder: "Maria Silva", validate: (v) => (v && v.trim() ? undefined : "Campo obrigatório") }));
   const cidade = bail(await text({ message: "Sua cidade", placeholder: "Curitiba" }));
-  const timezone = bail(await text({ message: "Timezone (IANA)", initialValue: "America/Sao_Paulo" }));
+  const timezone = bail(await text({ message: "Timezone (IANA)", initialValue: "America/Sao_Paulo", validate: (v) => (v && v.trim() ? undefined : "Campo obrigatório") }));
   const idioma_saida = bail(await text({ message: "Idioma do brief", initialValue: "pt-BR" }));
   const bio = bail(await text({ message: "Bio (1–3 linhas; use \\n p/ quebrar)", placeholder: "Profissão, foco atual…" }));
 

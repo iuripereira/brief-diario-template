@@ -20,6 +20,9 @@ test("email on inclui SMTP_* e EMAIL_*", () => {
   assert.match(env, /^MAIL_METHOD=smtp$/m);
   assert.match(env, /^SMTP_URL=$/m);
   assert.match(env, /^EMAIL_TO=$/m);
+  assert.match(env, /^SMTP_USER=$/m);
+  assert.match(env, /^SMTP_PASS=$/m);
+  assert.match(env, /^EMAIL_FROM=$/m);
 });
 
 test("chat=slack inclui só SLACK_WEBHOOK_URL", () => {
