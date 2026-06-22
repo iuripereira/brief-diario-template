@@ -61,9 +61,10 @@ vai para o runner.
 ```bash
 cp mcp-servers.example.json mcp-servers.json
 sed -i "s#COLOQUE_SEU_TOKEN_TODOIST#SEU_TOKEN#g; s#/home/SEU-USUARIO#$HOME#g" mcp-servers.json
-scripts/doctor.sh
-scripts/generate.sh $(date +%F)     # confira briefs/ e as seções populadas
+npm run doctor                       # validação cross-platform (Win/mac/Linux)
+scripts/generate.sh $(date +%F)      # geração: Linux/macOS/WSL — confira briefs/ e as seções
 ```
+> Os passos de autorização de MCP acima (tar/base64, `npx … auth`, `sed`) são **bash** — no Windows, rode-os no **WSL** ou **Git Bash**. A validação `npm run doctor` roda nativa em qualquer SO.
 
 ### Empacotar os tokens (base64)
 ```bash

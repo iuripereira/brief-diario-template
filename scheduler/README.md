@@ -5,6 +5,8 @@ horário, via API. É o disparo **primário**: o evento `schedule` nativo do Act
 best-effort e atrasa horas em repos de baixa atividade. O `schedule` do workflow fica
 como rede de segurança deduplicada (job `guard`).
 
+> Este agendador é Node (`npx wrangler`) — o deploy roda em **Windows, macOS e Linux**.
+
 ## Configurar
 
 1. Edite [wrangler.toml](wrangler.toml):

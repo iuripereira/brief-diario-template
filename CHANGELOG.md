@@ -5,7 +5,29 @@ Todas as mudanças notáveis deste template serão documentadas neste arquivo.
 O formato segue o [Keep a Changelog 1.0.0](https://keepachangelog.com/pt-BR/1.0.0/),
 e o projeto adere ao [Semantic Versioning 2.0.0](https://semver.org/lang/pt-BR/).
 
-## [1.0.0]
+## [1.1.0] - 2026-06-22
+
+### Adicionado
+- **Wizard de setup** (`npm run setup`): gera `config.yaml` e `.env` por perguntas —
+  Windows/macOS/Linux. Núcleo em `scripts/setup/` (`prompts`, `config-writer`,
+  `env-writer`), com testes (`npm test`).
+- **Validador em Node** (`npm run doctor`, [scripts/setup/doctor.js](scripts/setup/doctor.js)):
+  valida `config.yaml` + `.env`/ambiente + `mcp-servers.json` de forma cross-platform
+  (sem bash/python/jq).
+
+### Mudado
+- **Documentação liderada pelo wizard**: pré-requisitos em camadas (configurar+validar =
+  só Node, qualquer SO; gerar+enviar = bash, Windows via WSL/Git Bash; produção = Linux
+  gerenciado) e passo a passo começando por `npm run setup`.
+- **`generate.sh --check`** passa a chamar `node scripts/setup/doctor.js`.
+- **Diagrama de arquitetura** ([docs/arquitetura.svg](docs/arquitetura.svg)): a caixa de
+  configuração reflete `npm run setup` + `npm run doctor` (runtime inalterado).
+
+### Removido
+- **`scripts/doctor.sh`** — substituído pelo validador em Node (`npm run doctor`),
+  funcionalmente equivalente e cross-platform.
+
+## [1.0.0] - 2026-06-21
 
 ### Adicionado
 - **Template genérico do brief diário**, derivado do projeto pessoal `brief-diario`.
@@ -45,3 +67,6 @@ e o projeto adere ao [Semantic Versioning 2.0.0](https://semver.org/lang/pt-BR/)
   `upload-artifact@v5`) — elimina o aviso de depreciação do Node 20.
 - **`doctor.sh` aceita segredos via ambiente** (CI/GitHub Actions), não só via arquivo
   `.env`; respeita `MAIL_METHOD` (`stdout`/`sendmail` dispensam `SMTP_*`).
+
+[1.1.0]: https://github.com/iuripereira/brief-diario-template/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/iuripereira/brief-diario-template/releases/tag/v1.0.0
