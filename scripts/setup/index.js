@@ -45,7 +45,12 @@ if (process.platform !== "win32") {
     /* sistemas de arquivo sem suporte a permissões POSIX — segue */
   }
 }
-note("config.yaml e .env gerados (.env com chmod 600).", "Arquivos");
+note(
+  process.platform === "win32"
+    ? "config.yaml e .env gerados. No Windows, restrinja o acesso ao .env manualmente (contém segredos)."
+    : "config.yaml e .env gerados (.env com chmod 600).",
+  "Arquivos",
+);
 
 const doctorCode = runDoctorCli();
 
