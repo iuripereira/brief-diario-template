@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")/.."
 
-if [[ "${1:-}" == "--check" ]]; then exec scripts/doctor.sh; fi
+if [[ "${1:-}" == "--check" ]]; then exec node scripts/setup/doctor.js; fi
 
 set -a; [[ -f .env ]] && source ./.env; set +a
 TZ_CFG=$(python3 scripts/lib/config.py get perfil.timezone || true)

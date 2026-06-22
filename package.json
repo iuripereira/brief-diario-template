@@ -7,6 +7,7 @@
   "bin": { "create-brief-diario": "scripts/setup/index.js" },
   "scripts": {
     "setup": "node scripts/setup/index.js",
+    "doctor": "node scripts/setup/doctor.js",
     "test": "node --test scripts/setup/*.test.js"
   },
   "engines": { "node": ">=20" },
