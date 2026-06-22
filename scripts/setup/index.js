@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // Orquestra o wizard: checagens → coleta → escrita atômica → doctor.
 import { existsSync, writeFileSync, chmodSync } from "node:fs";
-import { spawnSync } from "node:child_process";
 import { outro, confirm, isCancel, cancel, note } from "@clack/prompts";
 import { collectAnswers } from "./prompts.js";
 import { renderConfig } from "./config-writer.js";
 import { renderEnv } from "./env-writer.js";
+import { runDoctorCli } from "./doctor.js";
 
 function die(msg) {
   process.stderr.write(`erro: ${msg}\n`);
@@ -40,7 +40,7 @@ writeFileSync(".env", renderEnv(answers), "utf-8");
 chmodSync(".env", 0o600);
 note("config.yaml e .env gerados (.env com chmod 600).", "Arquivos");
 
-const doctor = spawnSync("bash", ["scripts/doctor.sh"], { stdio: "inherit" });
+const doctorCode = runDoctorCli();
 
 note(
   [
@@ -51,4 +51,4 @@ note(
   "Próximos passos",
 );
 
-outro(doctor.status === 0 ? "Pronto ✓" : "Gerado — resolva as pendências do doctor acima.");
+outro(doctorCode === 0 ? "Pronto ✓" : "Gerado — resolva as pendências do doctor acima.");
