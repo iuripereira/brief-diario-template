@@ -5,6 +5,12 @@ Todas as mudanças notáveis deste template serão documentadas neste arquivo.
 O formato segue o [Keep a Changelog 1.0.0](https://keepachangelog.com/pt-BR/1.0.0/),
 e o projeto adere ao [Semantic Versioning 2.0.0](https://semver.org/lang/pt-BR/).
 
+## Não lançado
+
+- **Wizard de setup** (`npm run setup`): gera `config.yaml` e `.env` por perguntas — Windows/macOS/Linux.
+- **Validador em Node** (`npm run doctor`): substitui `scripts/doctor.sh`, roda cross-platform (sem bash/python/jq). `generate.sh --check` passa a chamá-lo.
+- **Docs cross-platform**: pré-requisitos em camadas e passo a passo liderado pelo wizard; nota de Windows (geração/envio via WSL/Git Bash).
+
 ## [1.0.0]
 
 ### Adicionado
