@@ -23,7 +23,7 @@ async function confirmOverwrite() {
   const exists = ["config.yaml", ".env"].filter((f) => existsSync(f));
   if (exists.length === 0) return;
   const ok = await confirm({
-    message: `Já existe: ${exists.join(", ")}. Sobrescrever?`,
+    message: `Já existe: ${exists.join(", ")}. O wizard regenera config.yaml e .env (com chaves vazias) — segredos já preenchidos serão perdidos. Sobrescrever?`,
     initialValue: false,
   });
   if (isCancel(ok) || !ok) {
@@ -37,7 +37,14 @@ const answers = await collectAnswers();
 
 writeFileSync("config.yaml", renderConfig(answers), "utf-8");
 writeFileSync(".env", renderEnv(answers), "utf-8");
-chmodSync(".env", 0o600);
+// chmod 0600 só faz sentido em POSIX; no Windows os bits são ignorados.
+if (process.platform !== "win32") {
+  try {
+    chmodSync(".env", 0o600);
+  } catch {
+    /* sistemas de arquivo sem suporte a permissões POSIX — segue */
+  }
+}
 note("config.yaml e .env gerados (.env com chmod 600).", "Arquivos");
 
 const doctorCode = runDoctorCli();
