@@ -85,22 +85,15 @@ jobs:
           export TZ="$BRIEF_TZ"
           TODAY=$(date +%F)
           echo "TODAY=$TODAY" >> "$GITHUB_ENV"
-          MD="briefs/$TODAY.md"; HTML="briefs/$TODAY.html"; CHAT="briefs/$TODAY.chat.md"
-          # espelha o contrato de artefatos / WORKFLOW.md §9 — manter coerente se a §9 mudar
-          validate() {
-            [[ -s "$MD" && $(stat -c%s "$MD") -gt 500 ]] || { echo "validação: $MD ausente ou pequeno demais"; return 1; }
-            [[ -s "$HTML" ]] || { echo "validação: $HTML ausente"; return 1; }
-            [[ -s "$CHAT" ]] || { echo "validação: $CHAT ausente"; return 1; }
-            grep -qi '</html>' "$HTML" || { echo "validação: HTML sem </html>"; return 1; }
-            grep -q "$TODAY" "$HTML" || { echo "validação: HTML sem a data $TODAY"; return 1; }
-            grep -q "$TODAY" "$MD" || { echo "validação: MD sem a data $TODAY"; return 1; }
-            grep -q "$TODAY" "$CHAT" || { echo "validação: chat sem a data $TODAY"; return 1; }
-          }
+          # Contrato de artefatos: fonte canônica única em scripts/lib/brief_contract.py
+          # (mesmo validador usado pelo hook Stop). `files` dá os caminhos p/ limpar antes
+          # de cada tentativa; `validate` aplica as regras.
+          mapfile -t ARTIFACTS < <(python3 scripts/lib/brief_contract.py files "$TODAY")
           ok=0
           for attempt in 1 2; do
             echo "--- geração: tentativa $attempt"
-            rm -f "$MD" "$HTML" "$CHAT"   # nunca validar artefato velho/parcial
-            if scripts/generate.sh "$TODAY" && validate; then ok=1; break; fi
+            rm -f "${ARTIFACTS[@]}"   # nunca validar artefato velho/parcial
+            if scripts/generate.sh "$TODAY" && python3 scripts/lib/brief_contract.py validate "$TODAY"; then ok=1; break; fi
             echo "tentativa $attempt falhou"
           done
           [[ $ok -eq 1 ]]

@@ -112,4 +112,4 @@ Dependem do que você vai fazer:
 - **[WORKFLOW.md](WORKFLOW.md)** — a spec do conteúdo do brief.
 - **[scheduler/](scheduler/)** — o Cloudflare Worker que dispara o brief.
 
-Testes: `npm test` (wizard + validador, cross-platform) e os testes dos scripts bash (`scripts/lib/test_config.py`, `scripts/test_send_chat.sh`). Sem build nem lint.
+Testes: `npm test` (wizard + validador, cross-platform); os testes Python (`python3 -m pytest scripts/lib/` — cobre `config.py` e o contrato de artefatos `brief_contract.py`); e os testes bash (`scripts/test_send_chat.sh`). Sem build nem lint.
