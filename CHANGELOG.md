@@ -7,6 +7,16 @@ e o projeto adere ao [Semantic Versioning 2.0.0](https://semver.org/lang/pt-BR/)
 
 ## [Não lançado]
 
+### Mudado
+- **Contrato de artefatos numa fonte canônica.** As regras que tornam o brief "pronto"
+  (os 3 arquivos existem, HTML termina em `</html>`, contêm a data, `.md` com tamanho
+  mínimo) estavam duplicadas e já divergentes entre o `validate()` do workflow (bash) e o
+  hook Stop (Python). Agora vivem só em
+  [scripts/lib/brief_contract.py](scripts/lib/brief_contract.py); o
+  [workflow](.github/workflows/brief.yml) e o [hook](.claude/hooks/guard_stop.py) delegam
+  a ele (com testes em `scripts/lib/test_brief_contract.py`). O hook passou a checar
+  também tamanho e data (nivelado pelo rigor do CI).
+
 ## [1.2.0] - 2026-06-23
 
 ### Corrigido

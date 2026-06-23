@@ -106,6 +106,12 @@ ou pergunta ao final; (opcional) 3–5 hashtags.
 `DATA` = a data ISO `AAAA-MM-DD` fornecida no prompt. Grave com a tool Write **três**
 arquivos:
 
+> A parte **verificável** deste contrato (os três arquivos existem, o HTML termina em
+> `</html>`, todos contêm a data, e o `.md` tem tamanho mínimo) é definida de forma
+> canônica em `scripts/lib/brief_contract.py` — o mesmo validador usado pelo GitHub
+> Actions e pelo hook Stop. As regras de *geração* abaixo (estrutura do HTML, sem
+> tabelas, rodapé) são orientação para você e não são checadas automaticamente.
+
 1. **`briefs/DATA.md`** — o brief **completo** em Markdown (todas as seções ativas).
    **Não use tabelas Markdown** (use listas) — tabelas quebram no e-mail. É a parte
    texto do e-mail.

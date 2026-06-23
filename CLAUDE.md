@@ -28,7 +28,7 @@ npm run doctor           # valida config.yaml + .env (rode até dar tudo ✓)
 # Testes
 npm test                                          # testes do wizard + doctor (node --test)
 node --test scripts/setup/env-writer.test.js      # um arquivo de teste só
-python3 scripts/lib/test_config.py                # testa o parser de config (config.py)
+python3 -m pytest scripts/lib/                     # testa config.py + brief_contract.py (pytest)
 bash scripts/test_send_chat.sh                    # testa montagem de payload do chat (sem rede)
 
 # Pipeline local (Linux/macOS/WSL — os scripts são bash; precisam jq, curl, python3+PyYAML, claude CLI)
@@ -67,7 +67,7 @@ ES modules, Node ≥ 20, `@clack/prompts`. Arquitetura: funções **puras** test
 ### Documentação do repositório
 
 - **Referência:** [CONFIG.md](CONFIG.md) (campos do config), [SETUP.md](SETUP.md) (credenciais/MCPs/secrets/deploy do Worker), [CONNECTORS.md](CONNECTORS.md) (trocar/estender provedores). Mantenha-os coerentes ao mudar comportamento correspondente.
-- **Contrato de artefatos:** vive em 3 lugares que devem ficar em sincronia — WORKFLOW.md §9, o `validate()` em brief.yml, e guard_stop.py. Mudou um, revise os outros.
+- **Contrato de artefatos:** fonte canônica única em [scripts/lib/brief_contract.py](scripts/lib/brief_contract.py) (regras verificáveis: os 3 arquivos existem, HTML termina em `</html>`, contêm a data, `.md` > 500 bytes). Tanto o `validate()` em brief.yml quanto guard_stop.py delegam a ele. WORKFLOW.md §9 descreve a *geração* (prosa do prompt) e referencia o validador. Ao mudar as regras, mexa só no `brief_contract.py` (e nos seus testes).
 - **Actions pinadas por SHA** no workflow (supply chain); ao atualizar, troque SHA + comentário da versão.
 
 ### CHANGELOG
