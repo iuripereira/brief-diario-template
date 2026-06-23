@@ -91,16 +91,16 @@ Siga **[SemVer 2.0.0](https://semver.org/)** (`MAJOR.MINOR.PATCH`):
 
 **Todo PR de código/comportamento mergeado na `main` gera uma tag SemVer `vX.Y.Z`** no commit de merge, com release no GitHub. A `main` permanece sempre lançável. O bump sai dos commits do PR (Conventional Commits → SemVer: `fix:` = PATCH, `feat:` = MINOR, `!`/`BREAKING CHANGE` = MAJOR; o maior vence). **PRs só de documentação não geram tag.**
 
-Não há "release PR" separado nem bump de `package.json`: a tag é gerada direto do merge. Logo após o merge (a `main` é protegida; merge só via PR):
+Não há "release PR" separado nem bump de `package.json`: a tag é gerada direto do merge.
 
-```bash
-git checkout main && git pull
-git tag -a vX.Y.Z <commit-de-merge> -m "vX.Y.Z"
-git push origin vX.Y.Z
-gh release create vX.Y.Z --verify-tag --notes "…"   # cole a seção do CHANGELOG ou o resumo do PR
-```
-
-No [CHANGELOG.md](CHANGELOG.md), ao taguear: renomeie `## [Não lançado]` → `## [X.Y.Z] - AAAA-MM-DD`, abra um novo `## [Não lançado]` vazio e adicione o link de compare (`vANTERIOR...vX.Y.Z`).
+1. **No PR, antes do merge:** no [CHANGELOG.md](CHANGELOG.md) renomeie `## [Não lançado]` → `## [X.Y.Z] - AAAA-MM-DD`, abra um novo `## [Não lançado]` vazio e adicione o link de compare (`vANTERIOR...vX.Y.Z`). Faça isso dentro do PR para o **commit de merge já carregar o cabeçalho da versão** (e não num commit solto depois da tag).
+2. **Logo após o merge** (a `main` é protegida; merge só via PR), crie a tag no commit de merge:
+   ```bash
+   git checkout main && git pull
+   git tag -a vX.Y.Z <commit-de-merge> -m "vX.Y.Z"
+   git push origin vX.Y.Z
+   gh release create vX.Y.Z --verify-tag --notes "…"   # cole a seção do CHANGELOG ou o resumo do PR
+   ```
 
 ### Commits e branches
 
