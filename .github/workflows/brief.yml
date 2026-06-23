@@ -4,67 +4,26 @@ name: brief-diario
 # Agendamento: Cloudflare Worker externo (scheduler/). Setup: ver SETUP.md.
 
 on:
-  # Disparo PRIMÁRIO: agendador externo (Cloudflare Worker em scheduler/) via API,
-  # porque o evento `schedule` nativo do Actions atrasa horas em repos de baixa
-  # atividade. O horário (no seu timezone) vive no Worker.
-  # Também serve para execução manual sob demanda pelo botão "Run workflow".
+  # Disparo: agendador externo (Cloudflare Worker em scheduler/) via API, porque o
+  # evento `schedule` nativo do Actions atrasa horas em repos de baixa atividade. O
+  # horário (no seu timezone) vive no Worker, que roda em DOIS ticks/dia e re-dispara
+  # se o 1º não entregou (recuperação) — ver scheduler/README.md. Não há fallback
+  # `schedule` aqui: ele entregava tarde demais e o antigo job `guard` quebrava sem
+  # checkout git. Também serve para execução manual pelo botão "Run workflow".
   workflow_dispatch: {}
-
-  # Rede de SEGURANÇA (fallback): se o Worker não disparar, este `schedule` ainda
-  # gera o brief — mesmo atrasado (o cron do Actions é best-effort). Para NÃO duplicar
-  # quando o Worker dispara normalmente, o job `guard` abaixo pula este caminho se já
-  # houve run bem-sucedido hoje. Ajuste o cron à folga sobre o horário do seu Worker.
-  schedule:
-    - cron: '0 12 * * 1-5'
 
 concurrency:                   # equivale ao flock: nunca dois runs simultâneos
   group: brief-diario
   cancel-in-progress: false
 
-# Least-privilege do GITHUB_TOKEN: o workflow só LÊ. `actions: read` é o que o job
-# `guard` precisa para consultar `gh run list`; `contents: read` cobre o checkout.
-# Nenhum passo escreve no repo (a entrega é por SMTP/chat, não por commit).
+# Least-privilege do GITHUB_TOKEN: o workflow só LÊ o repo no checkout. Nenhum passo
+# escreve (a entrega é por SMTP/chat, não por commit). A verificação de dedup vive no
+# Worker (PAT próprio), não aqui — por isso não precisamos mais de `actions: read`.
 permissions:
   contents: read
-  actions: read
 
 jobs:
-  # Guarda anti-duplicado do fallback: só deixa seguir o `schedule` se ainda não
-  # houve um run bem-sucedido do brief hoje. workflow_dispatch (Worker/manual) passa
-  # sempre direto. Converte o par "Worker + schedule" de risco de duplicata em
-  # defesa em profundidade (dois disparos independentes, no máximo um brief/dia).
-  guard:
-    runs-on: ubuntu-latest
-    outputs:
-      should_run: ${{ steps.check.outputs.should_run }}
-    steps:
-      - id: check
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          if [[ "${{ github.event_name }}" != "schedule" ]]; then
-            echo "Disparo ${{ github.event_name }} — segue sempre."
-            echo "should_run=true" >> "$GITHUB_OUTPUT"; exit 0
-          fi
-          TODAY=$(date -u +%F)   # createdAt da API vem em UTC
-          # Já existe run concluído com sucesso hoje (qualquer trigger, exceto este)?
-          DONE=$(gh run list --workflow=brief.yml --limit 30 \
-                   --json databaseId,createdAt,conclusion \
-                   -q "[.[] | select(.databaseId != ${{ github.run_id }})
-                            | select(.conclusion==\"success\")
-                            | select(.createdAt | startswith(\"$TODAY\"))] | length")
-          if [[ "${DONE:-0}" -gt 0 ]]; then
-            echo "Brief de $TODAY já rodou com sucesso ($DONE run/s) — fallback pula (sem duplicar)."
-            echo "should_run=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "⚠️ Nenhum brief bem-sucedido hoje — o Worker não disparou. Fallback assume."
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
-          fi
-
   brief:
-    needs: guard
-    if: needs.guard.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -154,10 +113,15 @@ jobs:
           scripts/send-chat.sh "$TODAY" || fail+=" chat"
           [[ -z "$fail" ]] || { echo "entrega parcial:$fail"; exit 1; }
 
-      - name: Alerta no chat em caso de falha
+      - name: Alerta em caso de falha (e-mail + chat)
         if: failure()
         run: |
-          scripts/send-chat.sh --alert "🚨 Brief de ${TODAY:-hoje} FALHOU no GitHub Actions. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" || true
+          # Dois canais independentes (belt-and-suspenders): se o SMTP estiver fora,
+          # o chat ainda avisa, e vice-versa. Ambos não-fatais (|| true) — o run já
+          # está marcado como falho; o alerta é best-effort.
+          MSG="🚨 Brief de ${TODAY:-hoje} FALHOU no GitHub Actions. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          scripts/send-email.sh --alert "$MSG" || true
+          scripts/send-chat.sh  --alert "$MSG" || true
 
       - name: Guardar artefatos (debug/retenção)
         if: always()

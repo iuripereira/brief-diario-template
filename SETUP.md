@@ -105,8 +105,10 @@ em Artifacts; seções pessoais **populadas** (não em `⚠️ Fonte indisponív
 Runbook completo em [scheduler/README.md](scheduler/README.md). Resumo:
 
 1. Ajuste `GH_OWNER`/`GH_REPO`/`crons` em [scheduler/wrangler.toml](scheduler/wrangler.toml)
-   (cron em **UTC** — converta o seu horário local).
-2. Crie um **PAT fine-grained** com **Actions: Read and write** no seu repo.
+   (cron em **UTC** — converta o seu horário local). São **dois** crons: o 1º dispara,
+   o 2º recupera (re-dispara só se o 1º não entregou). Ver [scheduler/README.md](scheduler/README.md).
+2. Crie um **PAT fine-grained** com **Actions: Read and write** no seu repo (o *read*
+   é usado pela verificação de dedup antes de re-disparar; o *write* dispara).
 3. Deploy:
    ```bash
    cd scheduler
@@ -120,7 +122,8 @@ Runbook completo em [scheduler/README.md](scheduler/README.md). Resumo:
 
 ## 6. Operação
 
-- **Falhas:** notificação nativa do Actions por e-mail + alerta `if: failure()` no chat.
+- **Falhas:** alerta `if: failure()` em **dois canais** (e-mail via `send-email.sh --alert`
+  + chat via `send-chat.sh --alert`), além da notificação nativa do Actions por e-mail.
 - **Credencial MCP expirou (401):** refaça o passo 2 da fonte, gere o tarball e atualize o
   secret. Causa comum: app OAuth voltou a "Testing" — republique "In production".
 - **Token Claude expirou:** `claude setup-token` de novo → atualize `CLAUDE_CODE_OAUTH_TOKEN`.

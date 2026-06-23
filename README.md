@@ -23,8 +23,8 @@ Tudo é configurável num único **`config.yaml`**: seu perfil, a lente de relev
 Da esquerda para a direita, de cima para baixo:
 
 1. **Você configura com `npm run setup`** — o wizard (Windows/macOS/Linux) gera o `config.yaml` (quem você é, o que é relevante, quais seções e conectores quer) e o `.env`. Valide a qualquer momento com `npm run doctor`. Também dá para editar o `config.yaml` à mão.
-2. **O Cloudflare Worker dispara** o pipeline no horário, nos dias úteis.
-3. **O GitHub Actions orquestra** (lock, retry, validação, alerta) e roda os scripts.
+2. **O Cloudflare Worker dispara** o pipeline no horário, nos dias úteis. Ele roda em **dois ticks** e **verifica-e-re-dispara**: o 2º só dispara de novo se o 1º não entregou (cron não disparado ou run falhou), consultando os runs do dia pela API — sem duplicar. É a rede de recuperação, no horário certo.
+3. **O GitHub Actions orquestra** (lock, retry, validação, alerta em e-mail + chat) e roda os scripts.
 4. **O `generate.sh` chama o Claude headless**, que lê o seu perfil + o `WORKFLOW.md`, consulta suas **fontes** (calendário, e-mail, tarefas via MCP; notícias na web) e **grava 3 artefatos**: `.md` e `.html` completos + `.chat.md` enxuto.
 5. **Os scripts entregam**: `send-email.sh` manda o e-mail; `send-chat.sh` posta no Slack/Discord/Telegram. O Claude nunca entrega.
 
