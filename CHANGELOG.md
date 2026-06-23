@@ -7,6 +7,8 @@ e o projeto adere ao [Semantic Versioning 2.0.0](https://semver.org/lang/pt-BR/)
 
 ## [Não lançado]
 
+## [1.2.0] - 2026-06-23
+
 ### Corrigido
 - **Job `guard` quebrado no fallback `schedule`** ([#2](https://github.com/iuripereira/brief-diario-template/issues/2)):
   rodava `gh run list` sem `checkout`/`-R`/`GH_REPO`, então `gh` não resolvia o repo e o
@@ -25,6 +27,9 @@ e o projeto adere ao [Semantic Versioning 2.0.0](https://semver.org/lang/pt-BR/)
 - **`send-email.sh --alert "msg"`**: e-mail `text/plain` mínimo de falha, espelhando o
   `--alert` de `send-chat.sh`. O passo `if: failure()` do workflow agora alerta em **dois
   canais** (e-mail + chat) — se o SMTP cair, o chat ainda avisa, e vice-versa.
+- **Convenção de tags/release** em [CLAUDE.md](CLAUDE.md): todo PR mergeado na `main` gera
+  uma tag SemVer `vX.Y.Z` coerente com o bump (Conventional Commits → SemVer), com o fluxo
+  bump → CHANGELOG → merge → tag/release documentado.
 
 ## [1.1.0] - 2026-06-22
 
@@ -89,5 +94,6 @@ e o projeto adere ao [Semantic Versioning 2.0.0](https://semver.org/lang/pt-BR/)
 - **`doctor.sh` aceita segredos via ambiente** (CI/GitHub Actions), não só via arquivo
   `.env`; respeita `MAIL_METHOD` (`stdout`/`sendmail` dispensam `SMTP_*`).
 
+[1.2.0]: https://github.com/iuripereira/brief-diario-template/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/iuripereira/brief-diario-template/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/iuripereira/brief-diario-template/releases/tag/v1.0.0
