@@ -7,6 +7,8 @@ e o projeto adere ao [Semantic Versioning 2.0.0](https://semver.org/lang/pt-BR/)
 
 ## [Não lançado]
 
+## [1.2.1] - 2026-06-23
+
 ### Mudado
 - **Contrato de artefatos numa fonte canônica.** As regras que tornam o brief "pronto"
   (os 3 arquivos existem, HTML termina em `</html>`, contêm a data, `.md` com tamanho
@@ -104,6 +106,7 @@ e o projeto adere ao [Semantic Versioning 2.0.0](https://semver.org/lang/pt-BR/)
 - **`doctor.sh` aceita segredos via ambiente** (CI/GitHub Actions), não só via arquivo
   `.env`; respeita `MAIL_METHOD` (`stdout`/`sendmail` dispensam `SMTP_*`).
 
+[1.2.1]: https://github.com/iuripereira/brief-diario-template/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/iuripereira/brief-diario-template/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/iuripereira/brief-diario-template/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/iuripereira/brief-diario-template/releases/tag/v1.0.0
