@@ -20,3 +20,7 @@ node_modules/
 # Python bytecode
 __pycache__/
 *.pyc
+
+# Superpowers — processo de desenvolvimento interno, não público
+docs/superpowers/
+.superpowers/
