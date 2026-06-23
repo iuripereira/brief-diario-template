@@ -85,26 +85,22 @@ Siga **[SemVer 2.0.0](https://semver.org/)** (`MAJOR.MINOR.PATCH`):
 - **MAJOR** — mudança incompatível (ex.: schema do `config.yaml`/`answers`, contrato de artefatos, variáveis do workflow/Worker).
 - **MINOR** — funcionalidade nova retrocompatível.
 - **PATCH** — correção retrocompatível.
-- A versão fonte é o `version` do [package.json](package.json); mantenha CHANGELOG e a tag git coerentes.
+- A versão canônica vive nas **tags git `vX.Y.Z`**. O `version` do [package.json](package.json) (`private`) **não** é bumpado a cada PR e pode ficar defasado — não é a fonte da verdade.
 
-### Tags e release (todo merge na `main`)
+### Tags e release (PR na `main` = tag)
 
-**Todo PR mergeado na `main` gera uma tag SemVer `vX.Y.Z`** — a `main` permanece sempre lançável e cada tag aponta para um commit de merge. O bump é decidido pelos commits do PR (Conventional Commits → SemVer: `fix:` = PATCH, `feat:` = MINOR, `!`/`BREAKING CHANGE` = MAJOR; o maior vence).
+**Todo PR de código/comportamento mergeado na `main` gera uma tag SemVer `vX.Y.Z`** no commit de merge, com release no GitHub. A `main` permanece sempre lançável. O bump sai dos commits do PR (Conventional Commits → SemVer: `fix:` = PATCH, `feat:` = MINOR, `!`/`BREAKING CHANGE` = MAJOR; o maior vence). **PRs só de documentação não geram tag.**
 
-Fluxo a cada PR:
+Não há "release PR" separado nem bump de `package.json`: a tag é gerada direto do merge. Logo após o merge (a `main` é protegida; merge só via PR):
 
-1. **No PR**, antes de mergear: bump do `version` em [package.json](package.json) e, no [CHANGELOG.md](CHANGELOG.md), renomeie `## [Não lançado]` → `## [X.Y.Z] - AAAA-MM-DD`, abra um novo `## [Não lançado]` vazio e adicione o link de compare (`vANTERIOR...vX.Y.Z`).
-2. **Merge na `main`** (a `main` é protegida; merge só via PR).
-3. **Logo após o merge**, no commit de merge: crie a **tag anotada** e publique —
-   ```bash
-   git checkout main && git pull
-   git tag -a vX.Y.Z -m "vX.Y.Z"
-   git push origin vX.Y.Z
-   gh release create vX.Y.Z --title vX.Y.Z --notes-from-tag   # ou cole a seção do CHANGELOG
-   ```
-4. **Coerência obrigatória:** a tag `vX.Y.Z`, o `version` do package.json e o cabeçalho `[X.Y.Z]` do CHANGELOG apontam para a mesma versão. Nunca tagueie sem o bump correspondente no CHANGELOG/package.json.
+```bash
+git checkout main && git pull
+git tag -a vX.Y.Z <commit-de-merge> -m "vX.Y.Z"
+git push origin vX.Y.Z
+gh release create vX.Y.Z --verify-tag --notes "…"   # cole a seção do CHANGELOG ou o resumo do PR
+```
 
-> A automação (`max:release-plugin`/`version-bump` e afins) pode executar esse fluxo, mas a convenção vale mesmo no processo manual.
+No [CHANGELOG.md](CHANGELOG.md), ao taguear: renomeie `## [Não lançado]` → `## [X.Y.Z] - AAAA-MM-DD`, abra um novo `## [Não lançado]` vazio e adicione o link de compare (`vANTERIOR...vX.Y.Z`).
 
 ### Commits e branches
 
