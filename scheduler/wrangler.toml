@@ -16,8 +16,13 @@ preview_urls = false
 #   ex.: 06:30 em America/Sao_Paulo (UTC-3) = 09:30 UTC → "30 9 * * *"
 # Roda TODO DIA de propósito; o filtro de dia útil (seg–sex) é feito em JS no
 # worker.js (getUTCDay), que não tem a ambiguidade do campo de dia-da-semana.
+#
+# DOIS ticks por dia para RECUPERAÇÃO (substitui o antigo fallback schedule/guard):
+# o 1º tick dispara; o 2º re-dispara só se o 1º não entregou (cron não disparado
+# ou run falhou). O worker.js deduplica verificando se já há run bom de hoje, então
+# o 2º tick é no-op nos dias normais. Ajuste o intervalo (aqui 30min) à sua folga.
 [triggers]
-crons = ["30 9 * * *"]
+crons = ["30 9 * * *", "0 10 * * *"]   # ex.: 06:30 e 07:00 America/Sao_Paulo (UTC-3)
 
 # Observability LIGADA: com logs retidos, `wrangler tail` e o painel (aba Cron
 # events) mostram cada invocação do scheduled handler. Só passa a valer após um

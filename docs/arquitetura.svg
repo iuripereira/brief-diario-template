@@ -6,10 +6,10 @@
 <text x="430" y="79.0" text-anchor="middle" font-size="13" font-weight="400" fill="#7a5c00">gera config.yaml + .env · valida: npm run doctor</text>
 <rect x="250" y="140" width="360" height="66" rx="15" fill="#fff3e8" stroke="#f38020" stroke-width="2"/>
 <text x="430" y="168.0" text-anchor="middle" font-size="15" font-weight="700" fill="#9a4a00">⏰ Cloudflare Worker — agendador</text>
-<text x="430" y="187.0" text-anchor="middle" font-size="13" font-weight="400" fill="#9a4a00">dispara nos dias úteis, no seu horário</text>
+<text x="430" y="187.0" text-anchor="middle" font-size="13" font-weight="400" fill="#9a4a00">dias úteis · 2 ticks (re-dispara se faltar)</text>
 <rect x="150" y="242" width="560" height="74" rx="15" fill="#eef1ff" stroke="#4555c4" stroke-width="2"/>
 <text x="430" y="264.5" text-anchor="middle" font-size="15" font-weight="700" fill="#2f3aa3">⚙️ GitHub Actions — orquestra</text>
-<text x="430" y="283.5" text-anchor="middle" font-size="13" font-weight="400" fill="#2f3aa3">lock · retry · validação · alerta em falha</text>
+<text x="430" y="283.5" text-anchor="middle" font-size="13" font-weight="400" fill="#2f3aa3">lock · retry · validação · alerta (e-mail + chat)</text>
 <text x="430" y="302.5" text-anchor="middle" font-size="13" font-weight="400" fill="#2f3aa3">→ roda os scripts bash na ordem abaixo</text>
 <rect x="40" y="362" width="214" height="168" rx="15" fill="#f3fbf6" stroke="#2da44e" stroke-width="2" stroke-dasharray="7 5"/>
 <text x="147" y="412.5" text-anchor="middle" font-size="15" font-weight="700" fill="#1a7f37">🔌 Fontes (MCP · só leitura)</text>

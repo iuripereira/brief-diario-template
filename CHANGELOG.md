@@ -5,6 +5,27 @@ Todas as mudanças notáveis deste template serão documentadas neste arquivo.
 O formato segue o [Keep a Changelog 1.0.0](https://keepachangelog.com/pt-BR/1.0.0/),
 e o projeto adere ao [Semantic Versioning 2.0.0](https://semver.org/lang/pt-BR/).
 
+## [Não lançado]
+
+### Corrigido
+- **Job `guard` quebrado no fallback `schedule`** ([#2](https://github.com/iuripereira/brief-diario-template/issues/2)):
+  rodava `gh run list` sem `checkout`/`-R`/`GH_REPO`, então `gh` não resolvia o repo e o
+  job falhava **todo dia útil** (ruído de "workflow failed") — e o fallback nunca cobria
+  de fato a ausência do Worker. O `schedule` ainda entregava o brief matinal tarde demais.
+
+### Mudado
+- **Recuperação migrada do Actions para o Worker.** Removidos o trigger `schedule` e o
+  job `guard` de [brief.yml](.github/workflows/brief.yml); `permissions` reduzido para só
+  `contents: read`. O [Cloudflare Worker](scheduler/) agora roda em **2 ticks/dia** e
+  **verifica-e-re-dispara**: consulta os runs de hoje pela API e só dispara se não houver
+  sucesso nem run em andamento (dedup que o `guard` deveria fazer, no horário certo e sem
+  git). O PAT usa o *read* (já incluso em "Actions: Read and write") para essa verificação.
+
+### Adicionado
+- **`send-email.sh --alert "msg"`**: e-mail `text/plain` mínimo de falha, espelhando o
+  `--alert` de `send-chat.sh`. O passo `if: failure()` do workflow agora alerta em **dois
+  canais** (e-mail + chat) — se o SMTP cair, o chat ainda avisa, e vice-versa.
+
 ## [1.1.0] - 2026-06-22
 
 ### Adicionado
