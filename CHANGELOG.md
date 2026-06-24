@@ -7,6 +7,11 @@ e o projeto adere ao [Semantic Versioning 2.0.0](https://semver.org/lang/pt-BR/)
 
 ## [Não lançado]
 
+### Adicionado
+- **Verificação tag↔CHANGELOG no release** ([CLAUDE.md](CLAUDE.md)): passo no fluxo de
+  release que confirma que o commit apontado pela tag já carrega o cabeçalho `## [X.Y.Z]` —
+  fecha o descompasso que deixou a `v1.2.1` taguada sob `[Não lançado]`.
+
 ## [1.2.1] - 2026-06-23
 
 ### Mudado

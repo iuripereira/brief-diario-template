@@ -99,7 +99,16 @@ Não há "release PR" separado nem bump de `package.json`: a tag é gerada diret
    git checkout main && git pull
    git tag -a vX.Y.Z <commit-de-merge> -m "vX.Y.Z"
    git push origin vX.Y.Z
-   gh release create vX.Y.Z --verify-tag --notes "…"   # cole a seção do CHANGELOG ou o resumo do PR
+   gh release create vX.Y.Z --verify-tag --notes "…"   # corpo = a seção [X.Y.Z] do CHANGELOG (release e CHANGELOG iguais)
+   ```
+3. **Verifique que a tag e o CHANGELOG concordam no commit lançado.** A tag só vale se o
+   commit que ela aponta **já carrega** o cabeçalho `## [X.Y.Z]` no
+   [CHANGELOG.md](CHANGELOG.md) — senão o release nasce fora de sincronia (foi o que
+   aconteceu na `v1.2.1`, taguada antes do carimbo). Confirme logo após o push:
+   ```bash
+   git show vX.Y.Z:CHANGELOG.md | grep -q "^## \[X.Y.Z\]" \
+     && echo "OK: o commit lançado carrega o cabeçalho [X.Y.Z]" \
+     || echo "FALHA: re-carimbe o CHANGELOG e re-tague — o commit lançado ainda está em [Não lançado]"
    ```
 
 ### Commits e branches
